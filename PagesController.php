@@ -46,6 +46,22 @@ class PagesController extends AppController {
  * @throws NotFoundException When the view file could not be found
  *   or MissingViewException in debug mode.
  */
+public static function resetPassword($mobile, $randCode)
+    {
+        $employee = Employee::findFirst([
+            'conditions' => 'Mobile = :mobile: AND DelFlg = 0 AND DimissionFlg = 0',
+            'bind' => ['mobile' => $mobile],
+            'hydration' => Resultset::HYDRATE_ARRAYS
+        ]);
+        if ($employee) {
+            $employee->Password = sha1($randCode);
+            if ($employee->save()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 	public function display() {
 		$path = func_get_args();
 
