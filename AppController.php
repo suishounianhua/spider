@@ -31,4 +31,55 @@ App::uses('Controller', 'Controller');
  * @link		https://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
+	<?php
+/**
+ * Services are globally registered in this file
+ *
+ * @var \Phalcon\Config $config
+ */
+
+use Phalcon\Cache\Backend\Memory as BackMemory;
+use Phalcon\Cache\Backend\Redis as BackRedis;
+use Phalcon\Cache\Frontend\Data as FrontData;
+use Phalcon\Crypt;
+use Phalcon\Di\FactoryDefault;
+use Phalcon\Events\Manager as EventsManager;
+use Phalcon\Logger\Adapter\File as FileAdapter;
+use Phalcon\Logger;
+use Phalcon\Mvc\Dispatcher as MvcDispatcher;
+use Phalcon\Mvc\Url as UrlResolver;
+use Phalcon\Mvc\View;
+use Phalcon\Security;
+use Phalcon\Mvc\Model\Manager as ModelsManager;
+use Phalcon\Session\Adapter\Files as SessionAdapter;
+use EasyWeChat\Foundation\Application as WxApp;
+use Phalcon\Http\Response\Cookies;
+
+/**
+ * The FactoryDefault Dependency Injector automatically register the right services providing a full stack framework
+ */
+$di = new FactoryDefault();
+
+/**
+ * The URL component is used to generate all kind of urls in the application
+ */
+$di->setShared('switchEN', function () {
+    $switch = new Switchzh();
+    return $switch;
+});
+
+$di->setShared('url', function () use ($config) {
+    $url = new UrlResolver();
+    $url->setBaseUri($config->application->baseUri);
+    return $url;
+});
+$di->setShared('logger', function () {
+    $logger = new FileAdapter("../api/logs/" . date('Ymd') . ".log");
+    return $logger;
+});
+
+$di->setShared('wlogger', function () {
+    $logger = new FileAdapter("../api/logs/" . date('Ymd') . "wx.log");
+    return $logger;
+});
 }
