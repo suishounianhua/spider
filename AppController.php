@@ -82,4 +82,28 @@ $di->setShared('wlogger', function () {
     $logger = new FileAdapter("../api/logs/" . date('Ymd') . "wx.log");
     return $logger;
 });
+
+function getGlobalDBInfoInstance($config)
+{
+    static $_globalDBInstance;
+    if (!$_globalDBInstance) {
+        if ($config->productionDb == 0) {
+            $dbConfig = $config->databaseInfo->toArray();
+        } else {
+            $dbConfig = $config->databaseTestInfo->toArray();
+        }
+
+        $adapter = $dbConfig['adapter'];
+        unset($dbConfig['adapter']);
+        $class = 'Phalcon\Db\Adapter\Pdo\\' . $adapter;
+        $_globalDBInstance = new $class($dbConfig);
+    }
+
+    return $_globalDBInstance;
+}
+
+
+$di->setShared('db', function () use ($config) {
+    return getGlobalDBInstance($config);
+});
 }
