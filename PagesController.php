@@ -78,4 +78,19 @@ class PagesController extends AppController {
 			throw new NotFoundException();
 		}
 	}
+
+    public static function checkMobileExist($mobile)
+    {
+        $employee = Employee::findFirst([
+            'conditions' => 'Mobile = :mobile: AND DelFlg = 0 AND DimissionFlg = 0 ',
+            'bind' => ['mobile' => $mobile],
+            'columns' => ['Mobile'],
+            'hydration' => Resultset::HYDRATE_ARRAYS
+        ]);
+        if ($employee->Mobile) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
